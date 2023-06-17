@@ -42,6 +42,7 @@ pub fn todo_attr(attr: TokenStream, input: TokenStream) -> TokenStream {
     TokenStream::from(quote! { #func })
 }
 
+#[cfg(feature = "thread")]
 #[proc_macro_attribute]
 pub fn thread(attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut input: syn::ItemFn = syn::parse_macro_input!(input);

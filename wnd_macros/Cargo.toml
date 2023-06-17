@@ -2,8 +2,12 @@
 name = "wnd_macros"
 version = "0.1.0"
 edition = "2021"
+authors = ["WhyNotDogie"]
+license = "ISC"
+description = "Macros that ylyl"
 
 [features]
+full = ["todo_attr", "thread"]
 todo_attr = []
 thread = []
 
