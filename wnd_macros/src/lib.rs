@@ -36,6 +36,11 @@ pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
     let fb = &input.block;
     // the main `{ … }` of the `fn`
     let fn_braces = input.block.brace_token.span;
+    // Adjust fn body
+    input.block.stmts = parse_quote_spanned! {fn_braces=>
+        ::std::thread::spawn(move || #fb)
+    };
+    // Adjust fn signature
     let rv = match input.sig.output.clone() {
         syn::ReturnType::Default => {
             // Span of the `{` where the `-> …` would have otherwise been.
@@ -43,9 +48,6 @@ pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
             syn::parse_quote_spanned! {span=> () }
         },
         syn::ReturnType::Type(_, t) => t,
-    };
-    input.block.stmts = parse_quote_spanned! {fn_braces=>
-        ::std::thread::spawn(move || #fb)
     };
     input.sig.output = syn::parse_quote_spanned! {rv.span()=>
         -> ::std::thread::JoinHandle<#rv>
