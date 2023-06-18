@@ -39,7 +39,7 @@ pub fn todo_attr(attr: TokenStream, input: TokenStream) -> TokenStream {
     func.block = Box::new(syn::parse_quote! { { #todo_macro } });
 
     // Return the modified function code as a TokenStream
-    TokenStream::from(quote! { #func })
+    TokenStream::from(debug_output(quote! { #func }))
 }
 
 #[cfg(feature = "thread")]
@@ -63,5 +63,36 @@ pub fn thread(attr: TokenStream, input: TokenStream) -> TokenStream {
         Token![->](input.sig.output.span()),
         Box::new(syn::parse_quote! { ::std::thread::JoinHandle<#rv> }),
     );
-    quote! {#input}.into()
+    debug_output(quote! {#input}).into()
+}
+
+// ADDED BY ME:
+fn debug_output(ts: TokenStream2) -> TokenStream2 {
+    if ::std::env::var("DEBUG_EXPANSIONS").ok().map_or(true, |s| s != "1") {
+        return ts;
+    }
+
+    let random: u64 = {
+        use ::std::hash::{BuildHasher, Hasher};
+
+        ::std::collections::hash_map::RandomState::new().build_hasher().finish()
+    };
+    let file_name = &format!("/tmp/{:016x}.rs", random);
+
+    ::std::fs::write(file_name, ts.to_string()).unwrap();
+    ::std::process::Command::new("rustfmt").args([
+        "--edition", "2021", file_name,
+    ]).status().unwrap();
+
+    quote!(
+        const _: () = {
+            #[deprecated = ::core::concat!(
+                "\n<DEBUG> output generated at ", #file_name,
+            )]
+            struct _Debug {}
+            let _: _Debug;
+        };
+
+        ::core::include!(#file_name);
+    )
 }
