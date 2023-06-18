@@ -38,7 +38,6 @@ pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
         syn::ReturnType::Default => syn::parse_quote! { () },
         syn::ReturnType::Type(_, t) => t,
     };
-    let rv = quote::quote_spanned! { rv.span() => #rv };
     input.block = syn::parse2(quote! {{
         ::std::thread::spawn(move || {#fb})
     }}).unwrap();
