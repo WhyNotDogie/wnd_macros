@@ -7,9 +7,9 @@ use syn::{*, spanned::Spanned, Result};
 
 #[cfg(feature = "todo_attr")]
 #[proc_macro_attribute]
-pub fn todo_attr(attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn todo_attr(args: TokenStream, input: TokenStream) -> TokenStream {
     // Parse the attribute arguments
-    let args = parse_macro_input!(attr as AttributeArgs);
+    let args = parse_macro_input!(args as AttributeArgs);
 
     // Extract the message from the attribute arguments
     let message = if !args.is_empty() {
@@ -44,7 +44,8 @@ pub fn todo_attr(attr: TokenStream, input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "thread")]
 #[proc_macro_attribute]
-pub fn thread(attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
+    let _: parse::Nothing = parse_macro_input!(args);
     let mut input: syn::ItemFn = syn::parse_macro_input!(input);
     let fb = input.block;
     let rv = match input.sig.output.clone() {
