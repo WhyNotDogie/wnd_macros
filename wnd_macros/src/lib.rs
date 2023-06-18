@@ -35,12 +35,8 @@ pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut input: syn::ItemFn = syn::parse_macro_input!(input);
     let fb = input.block;
     let rv = match input.sig.output.clone() {
-        syn::ReturnType::Default => {
-            syn::Type::Tuple(syn::parse_quote!{()})
-        },
-        syn::ReturnType::Type(_, t) => {
-            *t
-        }
+        syn::ReturnType::Default => syn::parse_quote! { () },
+        syn::ReturnType::Type(_, t) => t,
     };
     let rv = quote::quote_spanned! { rv.span() => #rv };
     input.block = syn::parse2(quote! {{
