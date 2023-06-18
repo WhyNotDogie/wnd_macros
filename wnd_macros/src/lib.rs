@@ -47,10 +47,9 @@ pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
     input.block.stmts = parse_quote_spanned! {fn_braces=>
         ::std::thread::spawn(move || #fb)
     };
-    input.sig.output = syn::ReturnType::Type(
-        Token![->](input.sig.output.span()),
-        Box::new(syn::parse_quote_spanned! { rv.span()=> ::std::thread::JoinHandle<#rv> }),
-    );
+    input.sig.output = syn::parse_quote_spanned! {rv.span()=>
+        -> ::std::thread::JoinHandle<#rv>
+    };
     debug_output(quote! {#input}).into()
 }
 
