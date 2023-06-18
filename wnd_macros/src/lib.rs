@@ -33,14 +33,14 @@ pub fn todo_attr(args: TokenStream, input: TokenStream) -> TokenStream {
 pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
     let _: parse::Nothing = parse_macro_input!(args);
     let mut input: syn::ItemFn = syn::parse_macro_input!(input);
-    let fb = input.block;
+    let fb = &input.block;
     let rv = match input.sig.output.clone() {
         syn::ReturnType::Default => syn::parse_quote! { () },
         syn::ReturnType::Type(_, t) => t,
     };
-    input.block = syn::parse2(quote! {{
-        ::std::thread::spawn(move || {#fb})
-    }}).unwrap();
+    input.block.stmts = parse_quote! {
+        ::std::thread::spawn(move || #fb)
+    };
     input.sig.output = syn::ReturnType::Type(
         Token![->](input.sig.output.span()),
         Box::new(syn::parse_quote! { ::std::thread::JoinHandle<#rv> }),
