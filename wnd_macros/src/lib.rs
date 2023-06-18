@@ -41,7 +41,7 @@ pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
         ::std::thread::spawn(move || #fb)
     };
     // Adjust fn signature
-    let rv = match input.sig.output.clone() {
+    let rv = match ::core::mem::replace(&mut input.sig.output, ReturnType::Default) {
         syn::ReturnType::Default => {
             // Span of the `{` where the `-> …` would have otherwise been.
             let span = fn_braces.open();
