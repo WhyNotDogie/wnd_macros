@@ -34,16 +34,22 @@ pub fn thread(args: TokenStream, input: TokenStream) -> TokenStream {
     let _: parse::Nothing = parse_macro_input!(args);
     let mut input: syn::ItemFn = syn::parse_macro_input!(input);
     let fb = &input.block;
+    // the main `{ … }` of the `fn`
+    let fn_braces = input.block.brace_token.span;
     let rv = match input.sig.output.clone() {
-        syn::ReturnType::Default => syn::parse_quote! { () },
+        syn::ReturnType::Default => {
+            // Span of the `{` where the `-> …` would have otherwise been.
+            let span = fn_braces.open();
+            syn::parse_quote_spanned! {span=> () }
+        },
         syn::ReturnType::Type(_, t) => t,
     };
-    input.block.stmts = parse_quote! {
+    input.block.stmts = parse_quote_spanned! {fn_braces=>
         ::std::thread::spawn(move || #fb)
     };
     input.sig.output = syn::ReturnType::Type(
         Token![->](input.sig.output.span()),
-        Box::new(syn::parse_quote! { ::std::thread::JoinHandle<#rv> }),
+        Box::new(syn::parse_quote_spanned! { rv.span()=> ::std::thread::JoinHandle<#rv> }),
     );
     debug_output(quote! {#input}).into()
 }
