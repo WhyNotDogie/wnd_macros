@@ -1,5 +1,4 @@
 [workspace]
 members = [
     "wnd_macros",
-    "tests"
 ]
