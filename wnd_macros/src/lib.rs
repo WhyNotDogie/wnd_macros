@@ -22,7 +22,7 @@ pub fn todo_attr(args: TokenStream, input: TokenStream) -> TokenStream {
     let todo_macro = quote! {
         todo!(#message)
     };
-    func.block = Box::new(syn::parse_quote! { { #todo_macro } });
+    func.block.stmts = syn::parse_quote! { #todo_macro };
 
     // Return the modified function code as a TokenStream
     TokenStream::from(debug_output(quote! { #func }))
