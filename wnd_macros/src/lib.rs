@@ -15,12 +15,12 @@ pub fn todo_attr(args: TokenStream, input: TokenStream) -> TokenStream {
     let message = if !args.is_empty() {
         let first_arg = &args[0];
         if let syn::NestedMeta::Lit(lit) = first_arg {
-            lit.to_token_stream().to_string()
+            lit.to_token_stream()
         } else {
             return syn::Error::new_spanned(first_arg, "Invalid attribute argument").to_compile_error().into();
         }
     } else {
-        String::new()
+        quote!()
     };
 
     // Parse the annotated function
