@@ -1,9 +1,9 @@
-extern crate proc_macro;
+#![allow(unused_imports)]
 
-use quote::ToTokens;
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, AttributeArgs, ItemFn, Token, spanned::Spanned};
+use proc_macro2::{Span, TokenStream as TokenStream2};
+use quote::{quote, quote_spanned, ToTokens};
+use syn::{*, spanned::Spanned, Result};
 
 #[cfg(feature = "todo_attr")]
 #[proc_macro_attribute]
