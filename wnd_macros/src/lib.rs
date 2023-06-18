@@ -8,20 +8,8 @@ use syn::{*, spanned::Spanned, Result};
 #[cfg(feature = "todo_attr")]
 #[proc_macro_attribute]
 pub fn todo_attr(args: TokenStream, input: TokenStream) -> TokenStream {
-    // Parse the attribute arguments
-    let args = parse_macro_input!(args as AttributeArgs);
-
-    // Extract the message from the attribute arguments
-    let message = if !args.is_empty() {
-        let first_arg = &args[0];
-        if let syn::NestedMeta::Lit(lit) = first_arg {
-            lit.to_token_stream()
-        } else {
-            return syn::Error::new_spanned(first_arg, "Invalid attribute argument").to_compile_error().into();
-        }
-    } else {
-        quote!()
-    };
+    // No need to parse the attribute arguments, let `todo!` handle that.
+    let message: TokenStream2 = args.into();
 
     // Parse the annotated function
     let mut func = parse_macro_input!(input as ItemFn);
@@ -31,10 +19,8 @@ pub fn todo_attr(args: TokenStream, input: TokenStream) -> TokenStream {
     func.attrs.push(allow_unused_attr);
 
     // Replace the function body with `todo!()` macro and the message
-    let todo_macro = if message.is_empty() {
-        quote! { todo!() }
-    } else {
-        quote! { todo!(#message) }
+    let todo_macro = quote! {
+        todo!(#message)
     };
     func.block = Box::new(syn::parse_quote! { { #todo_macro } });
 
